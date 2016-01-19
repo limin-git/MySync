@@ -1,5 +1,4 @@
 #pragma once
-#include "Parameter.h"
 
 typedef std::pair<boost::uintmax_t, std::time_t> FileKey;
 typedef std::set<boost::filesystem::path> FileSet;
@@ -22,10 +21,8 @@ public:
 public:
 
     void process_one_key( const FileKey& key );
-    void init_file_map( const boost::filesystem::path& path, FileMap& file_map, FilePath2KeyMap& file_path_map, FileSet& folder_set );
-    bool file_binary_compare( const std::string& lhs, const std::string& rhs );
-    void read_file( const std::string& filename, std::vector<char>& data );
-    boost::filesystem::path file_rename( const boost::filesystem::path& p );
+    void scan_folder( const boost::filesystem::path& path, FileMap& file_map, FilePath2KeyMap& file_path_map, FileSet& folder_set );
+    void my_rename( const boost::filesystem::path& p );
 
 public:
 

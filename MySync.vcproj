@@ -197,11 +197,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Parameter.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="include"
+			>
+			<File
+				RelativePath=".\src\CommandLineHelper.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\MakeSDK.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\MySync.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\Parameter.cpp"
+				RelativePath=".\src\Parameter.h"
 				>
 			</File>
 			<File
@@ -224,31 +240,11 @@
 					/>
 				</FileConfiguration>
 			</File>
-		</Filter>
-		<Filter
-			Name="include"
-			>
-			<File
-				RelativePath=".\src\CommandLineHelper.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\MakeSDK.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Parameter.h"
-				>
-			</File>
 			<File
 				RelativePath=".\src\StdAfx.h"
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\src\command_line.txt"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -10,13 +10,13 @@ void main(int argc, char* argv[])
 
     if ( parm )
     {
-        MySync my( parm->m_src, parm->m_dst );
-        my.sync();
+        try
+        {
+            MySync( parm->m_src, parm->m_dst ).sync();
+        }
+        catch ( std::exception& e )
+        {
+            std::cout << "ERROR: " << e.what() << std::endl;
+        }
     }
-
-    //if ( parm )
-    //{
-    //    std::cout << parm->m_src << std::endl;
-    //    std::cout << parm->m_dst << std::endl;
-    //}
 }
