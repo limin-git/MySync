@@ -12,9 +12,5 @@ public:
 
 private:
 
-    void display_usage();
-
-private:
-
     ParameterPtr m_parameter;
 };

@@ -1,0 +1,3 @@
+src			= C:\Tmp\1
+dests			= C:\Tmp\2
+dests			= C:\Tmp\3

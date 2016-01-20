@@ -21,6 +21,9 @@
 #include <cstdlib>
 #include <cstdio>
 
+// system
+#include <sys/stat.h>
+
 // boost
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/find.hpp>
@@ -33,3 +36,4 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
+#include <boost/program_options.hpp>

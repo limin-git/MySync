@@ -1,18 +1,18 @@
 #include "StdAfx.h"
 #include "CommandLineHelper.h"
-#include "MySync.h"
+#include "SyncMgr.h"
 
 
 void main(int argc, char* argv[])
 {
-    CommandLineHelper command_line_helper( argc, argv );
-    ParameterPtr parm = command_line_helper.get_parameter();
+    CommandLineHelper helper( argc, argv );
+    ParameterPtr parm = helper.get_parameter();
 
     if ( parm )
     {
         try
         {
-            MySync( parm->m_src, parm->m_dst ).sync();
+            SyncMgr( parm ).sync();
         }
         catch ( std::exception& e )
         {
