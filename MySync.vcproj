@@ -193,10 +193,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Parameter.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\Scan.cpp"
 				>
 			</File>
@@ -222,6 +218,10 @@
 			</File>
 			<File
 				RelativePath=".\src\Filter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Parameter.cpp"
 				>
 			</File>
 			<File

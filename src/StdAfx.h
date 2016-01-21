@@ -16,6 +16,9 @@
 #include <map>
 #include <set>
 #include <list>
+#include <queue>
+#include <deque>
+#include <stack>
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
@@ -31,6 +34,7 @@
 #include <boost/algorithm/string/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/filesystem.hpp>
 #include "boost/filesystem/path.hpp"
 #include <boost/shared_ptr.hpp>

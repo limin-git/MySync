@@ -13,6 +13,7 @@ void main(int argc, char* argv[])
         try
         {
             SyncMgr( parm ).sync();
+            std::cout << std::flush;
         }
         catch ( std::exception& e )
         {

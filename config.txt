@@ -1,3 +1,6 @@
-src			= C:\Tmp\1
+#src			= C:\Tmp\1
+src			= C:\My Document\English
 dests			= C:\Tmp\2
-dests			= C:\Tmp\3
+# dests			= C:\Tmp\3
+#exclude-files		= .h .cpp
+exclude-folders		= .git

@@ -5,7 +5,7 @@
 boost::system::error_code ec;
 
 
-void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap& src_path_key_map, PathSet& src_folders, 
+void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap& src_path_key_map, PathSet& src_folders,
                        const Path& dst, KeyPathMap& dst_key_path_map, PathKeyMap& dst_path_key_map, PathSet& dst_folders )
 {
     PathSet src_isolated_folders;
@@ -15,7 +15,7 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
 
     BOOST_FOREACH( Path& p, src_isolated_folders ) // CREATE FOLDER
     {
-        std::cout << "CREATE FOLDER: " << (dst / p).string() << std::endl;
+        std::cout << "CREATE FOLDER: " << (dst / p).string() << "\n";
         create_directories( dst / p, ec );
     }
 
@@ -34,7 +34,7 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
                     this->my_rename( p, dst, dst_key_path_map, dst_path_key_map, dst_folders );
                 }
 
-                std::cout << "COPY: " << (src / p).string() << " --> " << (dst / p).string() << std::endl;
+                std::cout << "COPY: " << (src / p).string() << " --> " << (dst / p).string() << "\n";
                 copy_file( src / p, dst / p, ec );
                 dst_key_path_map[file_key].insert( p );
                 dst_path_key_map[p] = file_key;
@@ -55,7 +55,7 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
                 {
                     Path& dst_file = *dst_file_set.begin();
 
-                    std::cout << "COPY: " << (dst / dst_file).string() << " --> " << (dst / p).string() << std::endl;
+                    std::cout << "COPY: " << (dst / dst_file).string() << " --> " << (dst / p).string() << "\n";
                     copy_file( dst / dst_file,  dst / p, ec );
                     dst_key_path_map[file_key].insert( p );
                     dst_path_key_map[p] = file_key;
@@ -64,7 +64,7 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
                 {
                     Path& dst_file = *dst_isolated.begin();
 
-                    std::cout << "RENAME: " << (dst / dst_file).string() << " --> " << (dst / p).string() << std::endl;
+                    std::cout << "RENAME: " << (dst / dst_file).string() << " --> " << (dst / p).string() << "\n";
                     rename( dst / dst_file, dst / p, ec );
 
                     dst_key_path_map[file_key].insert( p );
@@ -82,14 +82,16 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
     {
         if ( src_path_key_map.find( v.first ) == src_path_key_map.end() )
         {
-            std::cout << "REMOVE: " << (dst / v.first).string() << std::endl;
+            std::cout << "REMOVE: " << (dst / v.first).string() << "\n";
+            permissions( dst / v.first, boost::filesystem::all_all, ec );
             remove( dst / v.first, ec );
         }
     }
 
     BOOST_FOREACH( Path& p, dst_isolated_folders ) // REMOVE FOLDERS
     {
-        std::cout << "REMOVE FOLDER: " << (dst / p).string() << std::endl;
+        std::cout << "REMOVE FOLDER: " << (dst / p).string() << "\n";
+        permissions( dst / p, boost::filesystem::all_all, ec );
         remove_all( dst / p, ec );
     }
 }
@@ -107,6 +109,18 @@ void Sync::sync_folders( const Path& src, PathInfoSetMap& src_folder_map,
         {
             if ( sv.second == dv.second && sv.first != dv.first )
             {
+                PathInfoSetMap::iterator it = dst_folder_map.find( sv.first );
+
+                if ( it != dst_folder_map.end() )
+                {
+                    if ( sv.second != it->second )
+                    {
+                        std::cout << "TODO: destination folder already exist. " << (dst / it->first).string() << "\n";
+                    }
+
+                    continue;
+                }
+
                 rename_set.insert( std::make_pair( dv.first, sv.first ) );
             }
         }
@@ -130,18 +144,18 @@ void Sync::sync_folders( const Path& src, PathInfoSetMap& src_folder_map,
         if ( exists( dst / pp.second ) )
         {
             // TODO
-            std::cout << "TODO: destination folder already exist. " << pp.second.string() << std::endl;
+            std::cout << "TODO: destination folder already exist. " << pp.second.string() << "\n";
             continue;
         }
 
         Path parent = ( dst / pp.second ).parent_path();
         if ( ! exists( parent ) )
         {
-            std::cout << "CREATE FOLDER: " << (parent).string() << std::endl;
+            std::cout << "CREATE FOLDER: " << (parent).string() << "\n";
             create_directories( parent, ec );
         }
 
-        std::cout << "RENAME FOLDER: " << (dst / pp.first).string() << " --> " << (dst / pp.second).string() << std::endl;
+        std::cout << "RENAME FOLDER: " << (dst / pp.first).string() << " --> " << (dst / pp.second).string() << "\n";
         rename( dst / pp.first, dst / pp.second, ec );
     }
 }
@@ -163,7 +177,7 @@ void Sync::my_rename( const Path& p, const Path& bp, KeyPathMap& key_path_map, P
 
         if ( it == path_key_map.end() )  // RENAME
         {
-            std::cout << "RENAME: " << (bp / p).string() << " --> " << (bp / np).string() << std::endl;
+            std::cout << "RENAME: " << (bp / p).string() << " --> " << (bp / np).string() << "\n";
             rename( bp / p, bp / np, ec );
 
             path_key_map[np] = key;

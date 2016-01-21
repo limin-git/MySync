@@ -19,7 +19,7 @@ struct PathInfo
     long size;
     std::time_t last_write_time;
 
-    bool operator < ( const PathInfo& rhs ) const 
+    bool operator < ( const PathInfo& rhs ) const
     {
         return
             ( p < rhs.p ) ||
@@ -38,7 +38,7 @@ typedef std::set<PathInfo> PathInfoSet;
 typedef std::map<Path, PathInfoSet> PathInfoSetMap;
 
 
-struct FolderInfo 
+struct FolderInfo
 {
     Path base;
     KeyPathMap key_path_map;

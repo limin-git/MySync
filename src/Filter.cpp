@@ -2,8 +2,6 @@
 #include "Filter.h"
 
 
-// TODO:
-
 bool Filter::is_valid( const Path& p ) const
 {
     return true;
@@ -38,13 +36,13 @@ bool Filter::is_folder_valid( const Path& p ) const
 {
     std::string filename = p.filename().string();
 
-    if ( ! m_include_folders.empty() )
-    {
-        if ( std::find( m_include_folders.begin(), m_include_folders.end(), filename ) == m_include_folders.end() )
-        {
-            return false;
-        }
-    }
+    //if ( ! m_include_folders.empty() )
+    //{
+    //    if ( std::find( m_include_folders.begin(), m_include_folders.end(), filename ) == m_include_folders.end() )
+    //    {
+    //        return false;
+    //    }
+    //}
 
     if ( ! m_exclude_folders.empty() )
     {

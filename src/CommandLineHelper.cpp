@@ -10,10 +10,10 @@ CommandLineHelper::CommandLineHelper( int argc, char* argv[] )
         ( "config,C", boost::program_options::value<std::string>(),  "config file" )
         ( "src,S", boost::program_options::value<std::string>(),  "source path" )
         ( "dests,D", boost::program_options::value< std::vector<std::string> >()->multitoken(),  "destination path list" )
-        ( "include-files", boost::program_options::value< std::vector<std::string> >()->multitoken(),  "filter include files" )
-        ( "exclude-files", boost::program_options::value< std::vector<std::string> >()->multitoken(),  "filter exclude files" )
-        ( "include-folders", boost::program_options::value< std::vector<std::string> >()->multitoken(),  "filter include folders" )
-        ( "exclude-folders", boost::program_options::value< std::vector<std::string> >()->multitoken(),  "filter exclude folders" )
+        ( "include-files", boost::program_options::value<std::string>(), "filter include files" )
+        ( "exclude-files", boost::program_options::value<std::string>(), "filter exclude files" )
+        ( "include-folders", boost::program_options::value<std::string>(), "filter include folders" )
+        ( "exclude-folders", boost::program_options::value<std::string>(), "filter exclude folders" )
         ;
 
     boost::program_options::variables_map vm;
@@ -59,21 +59,21 @@ CommandLineHelper::CommandLineHelper( int argc, char* argv[] )
 
     if ( vm.count( "include-files" ) )
     {
-        m_parameter->m_include_files = vm["include-files"].as<std::vector<std::string> >();
+        boost::split( m_parameter->m_include_files, vm["include-files"].as<std::string>(), boost::is_any_of(" \t,:;") );
     }
 
     if ( vm.count( "exclude-files" ) )
     {
-        m_parameter->m_exclude_files = vm["exclude-files"].as<std::vector<std::string> >();
+        boost::split( m_parameter->m_exclude_files, vm["exclude-files"].as<std::string>(), boost::is_any_of(" \t,:;") );
     }
 
     if ( vm.count( "include-folders" ) )
     {
-        m_parameter->m_include_folders = vm["include-folders"].as<std::vector<std::string> >();
+        boost::split( m_parameter->m_include_folders, vm["include-folders"].as<std::string>(), boost::is_any_of(" \t,:;") );
     }
 
     if ( vm.count( "exclude-folders" ) )
     {
-        m_parameter->m_exclude_folders = vm["exclude-folders"].as<std::vector<std::string> >();
+        boost::split( m_parameter->m_exclude_folders, vm["exclude-folders"].as<std::string>(), boost::is_any_of(" \t,:;") );
     }
 }
