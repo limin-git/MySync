@@ -85,7 +85,7 @@ void Scan::scan( const Path& base, PathInfoSetMap& folder_map, const Filter& fil
                     for ( ; it2 != end2; ++it2 )
                     {
                         PathInfo info;
-                        info.p = it2->path().filename();
+                        info.name = it2->path().filename();
 
                         if ( ! is_directory( it2->path() ) )
                         {
@@ -105,4 +105,98 @@ void Scan::scan( const Path& base, PathInfoSetMap& folder_map, const Filter& fil
     }
 
     std::cout << std::endl;
+}
+
+
+void Scan::scan( const Path& base, PathSet& folders, PathSet& files, const Filter& filter )
+{
+    folders.clear();
+    files.clear();
+
+    std::stack<Path> stack;
+    stack.push( base );
+
+    while ( !stack.empty() )
+    {
+        Path dir = stack.top();
+        stack.pop();
+
+        boost::filesystem::directory_iterator it( dir );
+        boost::filesystem::directory_iterator end;
+
+        for ( ; it != end; ++it )
+        {
+            const Path& p = it->path();
+
+            if ( is_directory( p ) && ! is_symlink( p ) )
+            {
+                if ( filter.is_folder_valid( p ) )
+                {
+                    folders.insert( boost::filesystem::relative( p, base ) );
+                    stack.push(p);
+                }
+            }
+            else
+            {
+                if ( filter.is_file_valid( p ) )
+                {
+                    files.insert( boost::filesystem::relative( p, base ) );
+                }
+            }
+        }
+    }
+}
+
+
+void Scan::get_info( const Path& base, const PathSet& folders, PathKeyMap& cache, PathInfoSetMap& path_info_set_map )
+{
+    path_info_set_map.clear();
+
+    BOOST_FOREACH( const Path& dir, folders )
+    {
+        PathInfoSet& path_set = path_info_set_map[dir];
+        boost::filesystem::directory_iterator it( base / dir );
+        boost::filesystem::directory_iterator end;
+
+        for ( ; it != end; ++it )
+        {
+            const Path& p = it->path();
+            PathInfo info;
+            info.name = p.filename();
+
+            if ( ! is_directory( p ) )
+            {
+                Path& rp = relative( p, base );
+                const Key& key = cache[rp];
+                info.size = key.first;
+                info.last_write_time = key.second;
+            }
+
+            path_set.insert( info );
+        }
+    }
+}
+
+
+void Scan::get_info( const Path& base, const PathSet& files, PathKeyMap& path_key_map )
+{
+    path_key_map.clear();
+
+    BOOST_FOREACH( const Path& file, files )
+    {
+        struct stat st;
+        ::stat( ( base / file ).string().c_str(), &st );
+        path_key_map.insert( PathKeyMap::value_type( file, Key( st.st_size, st.st_mtime ) ) );
+    }
+}
+
+
+void Scan::convert( const PathKeyMap& path_key_map, KeyPathMap& key_path_map )
+{
+    key_path_map.clear();
+
+    BOOST_FOREACH( const PathKeyMap::value_type& v, path_key_map )
+    {
+        key_path_map[v.second].insert( v.first );
+    }
 }

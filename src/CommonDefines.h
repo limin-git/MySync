@@ -15,22 +15,22 @@ struct PathInfo
     {
     }
 
-    Path p;
+    Path name;
     long size;
     std::time_t last_write_time;
 
     bool operator < ( const PathInfo& rhs ) const
     {
         return
-            ( p < rhs.p ) ||
-            ( p == rhs.p && size < rhs.size ) ||
-            ( p == rhs.p && size == rhs.size && last_write_time < rhs.last_write_time )
+            ( name < rhs.name ) ||
+            ( name == rhs.name && size < rhs.size ) ||
+            ( name == rhs.name && size == rhs.size && last_write_time < rhs.last_write_time )
             ;
     }
 
     bool operator == ( const PathInfo& rhs ) const
     {
-        return p == rhs.p && size == rhs.size && last_write_time == rhs.last_write_time;
+        return name == rhs.name && size == rhs.size && last_write_time == rhs.last_write_time;
     }
 };
 
@@ -41,10 +41,20 @@ typedef std::map<Path, PathInfoSet> PathInfoSetMap;
 struct FolderInfo
 {
     Path base;
+    PathSet folders;
+    PathSet files;
     KeyPathMap key_path_map;
     PathKeyMap path_key_map;
-    PathSet folders;
     PathInfoSetMap folder_map;
+
+    void clear()
+    {
+        folders.clear();
+        files.clear();
+        key_path_map.clear();
+        path_key_map.clear();
+        folder_map.clear();
+    }
 };
 
 typedef std::vector<FolderInfo> FolderInfoList;

@@ -13,6 +13,7 @@ public:
     SyncMgr( ParameterPtr param );
 
     void sync();
+    void sync2();
 
 public:
 

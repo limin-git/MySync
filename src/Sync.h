@@ -6,10 +6,10 @@ class Sync
 {
 public:
 
-    void sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap& src_path_key_map, PathSet& src_folders,
+    bool sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap& src_path_key_map, PathSet& src_folders,
                      const Path& dst, KeyPathMap& dst_key_path_map, PathKeyMap& dst_path_key_map, PathSet& dst_folders );
 
-    void sync_folders( const Path& src, PathInfoSetMap& src_folder_map,
+    bool sync_folders( const Path& src, PathInfoSetMap& src_folder_map,
                        const Path& dst, PathInfoSetMap& dst_folder_map );
 
 public:

@@ -5,9 +5,10 @@
 boost::system::error_code ec;
 
 
-void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap& src_path_key_map, PathSet& src_folders,
+bool Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap& src_path_key_map, PathSet& src_folders,
                        const Path& dst, KeyPathMap& dst_key_path_map, PathKeyMap& dst_path_key_map, PathSet& dst_folders )
 {
+    bool changed = false;
     PathSet src_isolated_folders;
     PathSet dst_isolated_folders;
     std::set_difference( src_folders.begin(), src_folders.end(), dst_folders.begin(), dst_folders.end(), std::inserter(src_isolated_folders, src_isolated_folders.begin()) );
@@ -17,6 +18,7 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
     {
         std::cout << "CREATE FOLDER: " << (dst / p).string() << "\n";
         create_directories( dst / p, ec );
+        changed = true;
     }
 
     BOOST_FOREACH( const KeyPathMap::value_type& v, src_key_path_map ) // SYNC
@@ -38,6 +40,7 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
                 copy_file( src / p, dst / p, ec );
                 dst_key_path_map[file_key].insert( p );
                 dst_path_key_map[p] = file_key;
+                changed = true;
             }
         }
         else // MOVE, LOCAL COPY
@@ -59,6 +62,7 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
                     copy_file( dst / dst_file,  dst / p, ec );
                     dst_key_path_map[file_key].insert( p );
                     dst_path_key_map[p] = file_key;
+                    changed = true;
                 }
                 else // MOVE
                 {
@@ -73,6 +77,7 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
                     dst_path_key_map.erase( dst_file );
 
                     dst_isolated.erase( dst_isolated.begin() );
+                    changed = true;
                 }
             }
         }
@@ -85,6 +90,7 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
             std::cout << "REMOVE: " << (dst / v.first).string() << "\n";
             permissions( dst / v.first, boost::filesystem::all_all, ec );
             remove( dst / v.first, ec );
+            changed = true;
         }
     }
 
@@ -93,13 +99,17 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
         std::cout << "REMOVE FOLDER: " << (dst / p).string() << "\n";
         permissions( dst / p, boost::filesystem::all_all, ec );
         remove_all( dst / p, ec );
+        changed = true;
     }
+
+    return changed;
 }
 
 
-void Sync::sync_folders( const Path& src, PathInfoSetMap& src_folder_map,
+bool Sync::sync_folders( const Path& src, PathInfoSetMap& src_folder_map,
                          const Path& dst, PathInfoSetMap& dst_folder_map )
 {
+    bool changed = false;
     typedef std::pair<Path, Path> PathPair;
     std::set<PathPair> rename_set;
 
@@ -157,7 +167,10 @@ void Sync::sync_folders( const Path& src, PathInfoSetMap& src_folder_map,
 
         std::cout << "RENAME FOLDER: " << (dst / pp.first).string() << " --> " << (dst / pp.second).string() << "\n";
         rename( dst / pp.first, dst / pp.second, ec );
+        changed = true;
     }
+
+    return changed;
 }
 
 
