@@ -3,3 +3,4 @@ dests			= C:\Tmp\2
 # dests			= C:\Tmp\3
 #exclude-files		= .h .cpp
 #exclude-folders		= .git
+exclude-files		= .user;.ncb;.exe;.res;.dep;.ilk;.embed.manifest;.obj;.pdb;.idb.pcx;.suo;.jpg

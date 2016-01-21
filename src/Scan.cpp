@@ -110,6 +110,8 @@ void Scan::scan( const Path& base, PathInfoSetMap& folder_map, const Filter& fil
 
 void Scan::scan( const Path& base, PathSet& folders, PathSet& files, const Filter& filter )
 {
+    std::cout << "SCAN: " << base.string() << " ... ";
+
     folders.clear();
     files.clear();
 
@@ -133,7 +135,7 @@ void Scan::scan( const Path& base, PathSet& folders, PathSet& files, const Filte
                 if ( filter.is_folder_valid( p ) )
                 {
                     folders.insert( boost::filesystem::relative( p, base ) );
-                    stack.push(p);
+                    stack.push( p );
                 }
             }
             else
@@ -145,10 +147,12 @@ void Scan::scan( const Path& base, PathSet& folders, PathSet& files, const Filte
             }
         }
     }
+
+    std::cout << folders.size() << " folders, " << files.size() << " files." << std::endl;
 }
 
 
-void Scan::get_info( const Path& base, const PathSet& folders, PathKeyMap& cache, PathInfoSetMap& path_info_set_map )
+void Scan::get_info( PathInfoSetMap& path_info_set_map, const Path& base, const PathSet& folders, const PathKeyMap& cache )
 {
     path_info_set_map.clear();
 
@@ -167,9 +171,15 @@ void Scan::get_info( const Path& base, const PathSet& folders, PathKeyMap& cache
             if ( ! is_directory( p ) )
             {
                 Path& rp = relative( p, base );
-                const Key& key = cache[rp];
-                info.size = key.first;
-                info.last_write_time = key.second;
+
+                PathKeyMap::const_iterator find_it = cache.find( rp );
+
+                if ( find_it != cache.end() )
+                {
+                    const Key& key = find_it->second;
+                    info.size = key.first;
+                    info.last_write_time = key.second;
+                }
             }
 
             path_set.insert( info );
@@ -178,7 +188,7 @@ void Scan::get_info( const Path& base, const PathSet& folders, PathKeyMap& cache
 }
 
 
-void Scan::get_info( const Path& base, const PathSet& files, PathKeyMap& path_key_map )
+void Scan::get_info( PathKeyMap& path_key_map, const Path& base, const PathSet& files )
 {
     path_key_map.clear();
 

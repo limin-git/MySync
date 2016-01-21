@@ -68,6 +68,7 @@ void SyncMgr::sync()
     }
 
     m_scan.scan( m_src.base, m_src.folders, m_src.files, m_filter );
+    m_scan.get_info( m_src.path_key_map, m_src.base, m_src.files );
 
     BOOST_FOREACH( FolderInfo& m_dst, m_dests )
     {
@@ -78,20 +79,22 @@ void SyncMgr::sync()
         }
 
         m_scan.scan( m_dst.base, m_dst.folders, m_dst.files );
+        m_scan.get_info( m_dst.path_key_map, m_dst.base, m_dst.files );
 
-        if ( m_src.folders == m_dst.folders && m_src.files == m_dst.files )
+        if ( m_src.folders == m_dst.folders &&
+             m_src.files == m_dst.files &&
+             m_src.path_key_map == m_dst.path_key_map )
         {
+            std::cout << "EQUAL: " << m_src.base << " == " << m_dst.base << std::endl;
             continue;
         }
 
-        if ( m_src.key_path_map.empty() )
+        if ( m_src.folder_map.empty() )
         {
-            m_scan.get_info( m_src.base, m_src.files, m_src.path_key_map );
-            m_scan.get_info( m_src.base, m_src.folders, m_src.path_key_map, m_src.folder_map );
+            m_scan.get_info( m_src.folder_map, m_src.base, m_src.folders, m_src.path_key_map );
         }
 
-        m_scan.get_info( m_dst.base, m_dst.files, m_dst.path_key_map );
-        m_scan.get_info( m_dst.base, m_dst.folders, m_dst.path_key_map, m_dst.folder_map );
+        m_scan.get_info( m_dst.folder_map, m_dst.base, m_dst.folders, m_dst.path_key_map );
 
         bool changed = m_sync.sync_folders( m_src.base, m_src.folder_map,
                                             m_dst.base, m_dst.folder_map );
@@ -100,8 +103,8 @@ void SyncMgr::sync()
         {
             m_dst.clear();
             m_scan.scan( m_dst.base, m_dst.folders, m_dst.files );
-            m_scan.get_info( m_dst.base, m_dst.files, m_dst.path_key_map );
-            m_scan.get_info( m_dst.base, m_dst.folders, m_dst.path_key_map, m_dst.folder_map );
+            m_scan.get_info( m_dst.path_key_map, m_dst.base, m_dst.files );
+            m_scan.get_info( m_dst.folder_map, m_dst.base, m_dst.folders, m_dst.path_key_map );
         }
 
         if ( m_src.key_path_map.empty() )

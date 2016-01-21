@@ -13,7 +13,7 @@ public:
 
 public:
 
-    void get_info( const Path& base, const PathSet& files, PathKeyMap& path_key_map );
-    void get_info( const Path& base, const PathSet& folders, PathKeyMap& cache, PathInfoSetMap& folder_map );
+    void get_info( PathKeyMap& path_key_map, const Path& base, const PathSet& files );
+    void get_info( PathInfoSetMap& folder_map, const Path& base, const PathSet& folders, const PathKeyMap& cache );
     void convert( const PathKeyMap& path_key_map, KeyPathMap& key_path_map );
 };
