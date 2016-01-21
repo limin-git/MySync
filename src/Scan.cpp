@@ -43,3 +43,41 @@ void Scan::scan( const Path& p, KeyPathMap& key_path_map, PathKeyMap& path_key_m
 
     std::cout << folders.size() << " folders, " << key_path_map.size() << " files." << std::endl;
 }
+
+
+void Scan::scan( const Path& base, PathInfoSetMap& folder_map )
+{
+    folder_map.clear();
+
+    boost::filesystem::recursive_directory_iterator it( base );
+    boost::filesystem::recursive_directory_iterator end;
+
+    for ( ; it != end; ++it )
+    {
+        const Path& p = it->path();
+
+        if ( is_directory( p ) )
+        {
+            Path rp = relative( p, base );
+            PathInfoSet& path_set = folder_map[rp];
+            boost::filesystem::directory_iterator it2( p );
+            boost::filesystem::directory_iterator end2;
+
+            for ( ; it2 != end2; ++it2 )
+            {
+                PathInfo info;
+                info.p = it2->path().filename();
+
+                if ( ! is_directory( it2->path() ) )
+                {
+                    struct stat st;
+                    ::stat( it2->path().string().c_str(), &st );
+                    info.size = st.st_size;
+                    info.last_write_time = st.st_mtime;
+                }
+
+                path_set.insert( info );
+            }
+        }
+    }
+}

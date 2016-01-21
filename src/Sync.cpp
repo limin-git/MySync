@@ -95,6 +95,58 @@ void Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap
 }
 
 
+void Sync::sync_folders( const Path& src, PathInfoSetMap& src_folder_map,
+                         const Path& dst, PathInfoSetMap& dst_folder_map )
+{
+    typedef std::pair<Path, Path> PathPair;
+    std::set<PathPair> rename_set;
+
+    BOOST_FOREACH( PathInfoSetMap::value_type& sv , src_folder_map )
+    {
+        BOOST_FOREACH( PathInfoSetMap::value_type& dv , dst_folder_map )
+        {
+            if ( sv.second == dv.second && sv.first != dv.first )
+            {
+                rename_set.insert( std::make_pair( dv.first, sv.first ) );
+            }
+        }
+    }
+
+    std::set<PathPair> child_set;
+
+    BOOST_FOREACH( const PathPair& pp, rename_set )
+    {
+        if ( rename_set.find( std::make_pair( pp.first.parent_path(), pp.second.parent_path() ) ) != rename_set.end() )
+        {
+            child_set.insert( pp );
+        }
+    }
+
+    std::set<PathPair> new_rename_set;
+    std::set_difference( rename_set.begin(), rename_set.end(), child_set.begin(), child_set.end(), std::inserter( new_rename_set, new_rename_set.begin() ) );
+
+    BOOST_FOREACH( const PathPair& pp, new_rename_set )
+    {
+        if ( exists( dst / pp.second ) )
+        {
+            // TODO
+            std::cout << "TODO: destination folder already exist. " << pp.second.string() << std::endl;
+            continue;
+        }
+
+        Path parent = ( dst / pp.second ).parent_path();
+        if ( ! exists( parent ) )
+        {
+            std::cout << "CREATE FOLDER: " << (parent).string() << std::endl;
+            create_directories( parent, ec );
+        }
+
+        std::cout << "RENAME FOLDER: " << (dst / pp.first).string() << " --> " << (dst / pp.second).string() << std::endl;
+        rename( dst / pp.first, dst / pp.second, ec );
+    }
+}
+
+
 void Sync::my_rename( const Path& p, const Path& bp, KeyPathMap& key_path_map, PathKeyMap& path_key_map, PathSet& path_set )
 {
     Path parent = p.parent_path();

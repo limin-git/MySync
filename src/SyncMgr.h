@@ -1,6 +1,6 @@
 #pragma once
+#include "CommonDefines.h"
 #include "Parameter.h"
-#include "FolderInfo.h"
 #include "Filter.h"
 #include "Scan.h"
 #include "Sync.h"

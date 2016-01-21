@@ -20,12 +20,25 @@ SyncMgr::SyncMgr( ParameterPtr param )
 
 void SyncMgr::sync()
 {
-    m_scan.scan( m_src.base, m_src.key_path_map, m_src.path_key_map, m_src.folders, m_filter );
-
-    BOOST_FOREACH( FolderInfo& m_dst , m_dests )
     {
-        m_scan.scan( m_dst.base, m_dst.key_path_map, m_dst.path_key_map, m_dst.folders );
-        m_sync.sync_files( m_src.base, m_src.key_path_map, m_src.path_key_map, m_src.folders,
-                           m_dst.base, m_dst.key_path_map, m_dst.path_key_map, m_dst.folders );
+        m_scan.scan( m_src.base, m_src.folder_map );
+
+        BOOST_FOREACH( FolderInfo& m_dst , m_dests )
+        {
+            m_scan.scan( m_dst.base, m_dst.folder_map );
+            m_sync.sync_folders( m_src.base, m_src.folder_map,
+                                 m_dst.base, m_dst.folder_map );
+        }
+    }
+
+    {
+        m_scan.scan( m_src.base, m_src.key_path_map, m_src.path_key_map, m_src.folders, m_filter );
+
+        BOOST_FOREACH( FolderInfo& m_dst , m_dests )
+        {
+            m_scan.scan( m_dst.base, m_dst.key_path_map, m_dst.path_key_map, m_dst.folders );
+            m_sync.sync_files( m_src.base, m_src.key_path_map, m_src.path_key_map, m_src.folders,
+                               m_dst.base, m_dst.key_path_map, m_dst.path_key_map, m_dst.folders );
+        }
     }
 }
