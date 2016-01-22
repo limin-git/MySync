@@ -103,16 +103,19 @@ bool Sync::sync_copy_remote_folders( const Path& src, const PathSet& src_folders
         const Path to = dst / p;
 
         std::cout << "COPY FOLDER: " << from << " -- " << to << "\n";
-        copy_directory( from, to, ec );
+        //copy_directory( from, to, ec );
 
-        if ( ec )
-        {
-            const Path to_parent = to.parent_path();
-            std::cout << "CREATE DIRECTORIES: " << to_parent << "\n";
-            create_directories( to_parent, ec );
-            copy_directory( from, to, ec );
-        }
+        //if ( ec )
+        //{
+        //    const Path to_parent = to.parent_path();
+        //    std::cout << "CREATE DIRECTORIES: " << to_parent << "\n";
+        //    create_directories( to_parent, ec );
+        //    copy_directory( from, to, ec );
+        //}
 
+        std::stringstream cmd;
+        cmd << "XCOPY /E /Y /I /Q " << from << " " << to << " >NUL";
+        ::system( cmd.str().c_str() );
         changed = true;
     }
 
