@@ -9,7 +9,7 @@ CommandLineHelper::CommandLineHelper( int argc, char* argv[] )
         ( "help,?", "produce help message" )
         ( "config,C", boost::program_options::value<std::string>(),  "config file" )
         ( "src,S", boost::program_options::value<std::string>(),  "source path" )
-        ( "dests,D", boost::program_options::value< std::vector<std::string> >()->multitoken(),  "destination path list" )
+        ( "dst,D", boost::program_options::value< std::vector<std::string> >()->multitoken(),  "destination path list" )
         ( "include-files", boost::program_options::value<std::string>(), "filter include files" )
         ( "exclude-files", boost::program_options::value<std::string>(), "filter exclude files" )
         ( "include-folders", boost::program_options::value<std::string>(), "filter include folders" )
@@ -38,42 +38,42 @@ CommandLineHelper::CommandLineHelper( int argc, char* argv[] )
     }
 
     std::string src;
-    std::vector<std::string> dests;
+    std::vector<std::string> dst;
 
     if ( vm.count( "src" ) )
     {
         src = vm["src"].as<std::string>();
     }
 
-    if ( vm.count( "dests" ) )
+    if ( vm.count( "dst" ) )
     {
-        dests = vm["dests"].as<std::vector<std::string> >();
+        dst = vm["dst"].as<std::vector<std::string> >();
     }
 
-    if ( src.empty() || dests.empty() )
+    if ( src.empty() || dst.empty() )
     {
         return;
     }
 
-    m_parameter.reset( new Parameter(src, dests) );
+    m_parameter.reset( new Parameter(src, dst) );
 
     if ( vm.count( "include-files" ) )
     {
-        boost::split( m_parameter->m_include_files, vm["include-files"].as<std::string>(), boost::is_any_of(" \t,:;") );
+        boost::split( m_parameter->m_include_files, vm["include-files"].as<std::string>(), boost::is_any_of(" \t,:;" ), boost::token_compress_on );
     }
 
     if ( vm.count( "exclude-files" ) )
     {
-        boost::split( m_parameter->m_exclude_files, vm["exclude-files"].as<std::string>(), boost::is_any_of(" \t,:;") );
+        boost::split( m_parameter->m_exclude_files, vm["exclude-files"].as<std::string>(), boost::is_any_of(" \t,:;"), boost::token_compress_on );
     }
 
     if ( vm.count( "include-folders" ) )
     {
-        boost::split( m_parameter->m_include_folders, vm["include-folders"].as<std::string>(), boost::is_any_of(" \t,:;") );
+        boost::split( m_parameter->m_include_folders, vm["include-folders"].as<std::string>(), boost::is_any_of(" \t,:;"), boost::token_compress_on );
     }
 
     if ( vm.count( "exclude-folders" ) )
     {
-        boost::split( m_parameter->m_exclude_folders, vm["exclude-folders"].as<std::string>(), boost::is_any_of(" \t,:;") );
+        boost::split( m_parameter->m_exclude_folders, vm["exclude-folders"].as<std::string>(), boost::is_any_of(" \t,:;"), boost::token_compress_on );
     }
 }

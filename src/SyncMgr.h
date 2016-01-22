@@ -13,13 +13,11 @@ public:
     SyncMgr( ParameterPtr param );
 
     void sync();
-    void sync2();
 
 public:
 
-    ParameterPtr m_param;
     FolderInfo m_src;
-    FolderInfoList m_dests;
+    FolderInfoList m_dst_list;
     Filter m_filter;
     Scan m_scan;
     Sync m_sync;
