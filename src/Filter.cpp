@@ -4,7 +4,12 @@
 
 bool Filter::is_valid( const Path& p ) const
 {
-    return true;
+    if ( is_directory( p ) && !is_symlink( p ) )
+    {
+        return is_folder_valid( p );
+    }
+
+    return is_file_valid( p );
 }
 
 

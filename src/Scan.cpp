@@ -2,12 +2,14 @@
 #include "Scan.h"
 
 
-void Scan::scan( const Path& base, PathSet& folders, PathSet& files, const Filter& filter )
+void Scan::scan( const Path& base, PathSet& folders, PathSet& files, PathSet& invalid_folders, PathSet& invalid_files, const Filter& filter )
 {
     std::cout << "SCAN: " << base.string() << " ... ";
 
     folders.clear();
     files.clear();
+    invalid_folders.clear();
+    invalid_files.clear();
 
     std::stack<Path> stack;
     stack.push( base );
@@ -24,12 +26,20 @@ void Scan::scan( const Path& base, PathSet& folders, PathSet& files, const Filte
         {
             const Path& p = it->path();
 
-            if ( is_directory( p ) && ! is_symlink( p ) )
+            if ( is_symlink( p ) )
+            {
+                invalid_folders.insert( p );
+            }
+            else if ( is_directory( p ) )
             {
                 if ( filter.is_folder_valid( p ) )
                 {
                     folders.insert( boost::filesystem::relative( p, base ) );
                     stack.push( p );
+                }
+                else
+                {
+                    invalid_folders.insert( p );
                 }
             }
             else
@@ -37,6 +47,10 @@ void Scan::scan( const Path& base, PathSet& folders, PathSet& files, const Filte
                 if ( filter.is_file_valid( p ) )
                 {
                     files.insert( boost::filesystem::relative( p, base ) );
+                }
+                else
+                {
+                    invalid_files.insert( p );
                 }
             }
         }
@@ -108,4 +122,47 @@ void Scan::convert_to_key_path_map( const PathKeyMap& path_key_map, KeyPathMap& 
     {
         key_path_map[v.second].insert( v.first );
     }
+}
+
+
+bool Scan::has_invalid( const Path& dir, const Filter& filter )
+{
+    boost::filesystem::recursive_directory_iterator it( dir );
+    boost::filesystem::recursive_directory_iterator end;
+
+    for ( ; it != end; ++it )
+    {
+        const Path& p = it->path();
+
+        if ( is_symlink( p ) )
+        {
+            return true;
+        }
+
+        if ( !filter.is_valid( p ) )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+void Scan::splite_folders_by_validity( const Path& base, const PathSet& folders, const Filter& filter, PathSet& has_invalid_folders, PathSet& not_has_invalid_folders )
+{
+    has_invalid_folders.clear();
+    not_has_invalid_folders.clear();
+
+    BOOST_FOREACH( const Path& p, folders )
+    {
+        if ( has_invalid( base / p, filter ) )
+        {
+            has_invalid_folders.insert( p );
+        }
+        else
+        {
+            not_has_invalid_folders.insert( p );
+        }
+    } 
 }
