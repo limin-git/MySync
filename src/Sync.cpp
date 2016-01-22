@@ -8,6 +8,8 @@ boost::system::error_code ec;
 bool Sync::sync_files( const Path& src, KeyPathMap& src_key_path_map, PathKeyMap& src_path_key_map, PathSet& src_folders,
                        const Path& dst, KeyPathMap& dst_key_path_map, PathKeyMap& dst_path_key_map, PathSet& dst_folders )
 {
+    // TODO:
+
     bool changed = false;
     PathSet src_isolated_folders;
     PathSet dst_isolated_folders;
