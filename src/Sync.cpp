@@ -34,9 +34,10 @@ bool Sync::sync_remove_folders( const Path& src, const PathSet& src_folders,
 
     BOOST_FOREACH( const Path& p, dst_isolated_folders )
     {
-        std::cout << "REMOVE FOLDER: " << p << "\n";
-        permissions( p, boost::filesystem::all_all, ec );
-        remove_all( p, ec );
+        Path dir = dst / p;
+        std::cout << "REMOVE FOLDER: " << dir << "\n";
+        permissions( dir, boost::filesystem::all_all, ec );
+        remove_all( dir, ec );
         changed = true;
     }
 
@@ -44,30 +45,44 @@ bool Sync::sync_remove_folders( const Path& src, const PathSet& src_folders,
 }
 
 
-bool Sync::sync_copy_remote_files( const Path& src, const PathSet& src_files,
-                                   const Path& dst, const PathSet& dst_files )
+bool Sync::sync_copy_remote_files( const Path& src, const KeyPathMap& src_key_path_map,
+                                   const Path& dst, const KeyPathMap& dst_key_path_map )
 {
     bool changed = false;
-    PathSet src_isolated_files;
-    std::set_difference( src_files.begin(), src_files.end(), dst_files.begin(), dst_files.end(), std::inserter(src_isolated_files, src_isolated_files.begin()) );
 
-    BOOST_FOREACH( const Path& p, src_isolated_files )
+    BOOST_FOREACH( const KeyPathMap::value_type& v, src_key_path_map )
     {
-        const Path from = src / p;
-        const Path to = dst / p;
+        const Key& key = v.first;
+        const PathSet& src_file_set = v.second;
+        KeyPathMap::const_iterator it = dst_key_path_map.find( key );
 
-        std::cout << "COPY: " << from << " -- " << to << "\n";
-        copy_file( from, to, ec );
-
-        if ( ec )
+        if ( it == dst_key_path_map.end() )
         {
-            const Path to_parent = to.parent_path();
-            std::cout << "CREATE DIRECTORIES: " << to_parent << "\n";
-            create_directories( to_parent, ec );
-            copy_file( from, to, ec );
-        }
+            BOOST_FOREACH( const Path& p, src_file_set )
+            {
+                const Path from = src / p;
+                const Path to = dst / p;
 
-        changed = true;
+                if ( exists( to ) )
+                {
+                    permissions( to, boost::filesystem::all_all, ec );
+                    remove( to, ec );
+                }
+
+                std::cout << "COPY: " << from << " -- " << to << "\n";
+                copy_file( from, to, ec );
+
+                if ( ec )
+                {
+                    const Path to_parent = to.parent_path();
+                    std::cout << "CREATE DIRECTORIES: " << to_parent << "\n";
+                    create_directories( to_parent, ec );
+                    copy_file( from, to, ec );
+                }
+            }
+
+            changed = true;
+        }
     }
 
     return changed;
@@ -178,6 +193,18 @@ bool Sync::sync_move_local_folders( const Path& src, PathInfoSetMap& src_folder_
         {
             if ( sv.second == dv.second && sv.first != dv.first )
             {
+                PathInfoSetMap::iterator it = dst_folder_info_map.find( sv.first );
+
+                if ( it != dst_folder_info_map.end() )
+                {
+                    if ( sv.second != it->second )
+                    {
+                        std::cout << "TODO: destination folder already exist. " << dst / it->first << "\n";
+                    }
+
+                    continue;
+                }
+
                 rename_set.insert( PathPair( dv.first, sv.first ) );
             }
         }

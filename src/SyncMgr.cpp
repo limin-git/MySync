@@ -26,6 +26,7 @@ void SyncMgr::sync()
 
     m_scan.scan( m_src.base, m_src.folders,m_src.files, m_src.folders_invalid, m_src.files_invalid, m_filter ); // scan folders, files
     m_scan.get_key( m_src.path_key_map, m_src.base, m_src.files );   // get key(size, last-write-time) for each files
+    m_scan.convert_to_key_path_map( m_src.path_key_map, m_src.key_path_map );
 
     BOOST_FOREACH( FolderInfo& m_dst, m_dst_list )
     {
@@ -37,6 +38,7 @@ void SyncMgr::sync()
 
         m_scan.scan( m_dst.base, m_dst.folders, m_dst.files, m_dst.folders_invalid, m_dst.files_invalid );
         m_scan.get_key( m_dst.path_key_map, m_dst.base, m_dst.files );
+        m_scan.convert_to_key_path_map( m_dst.path_key_map, m_dst.key_path_map );
 
         if ( m_src.folders == m_dst.folders &&
              m_src.files == m_dst.files &&
@@ -63,6 +65,7 @@ void SyncMgr::sync()
             m_dst.clear();
             m_scan.scan( m_dst.base, m_dst.folders, m_dst.files, m_dst.folders_invalid, m_dst.files_invalid );
             m_scan.get_key( m_dst.path_key_map, m_dst.base, m_dst.files );
+            m_scan.convert_to_key_path_map( m_dst.path_key_map, m_dst.key_path_map );
         }
 
         changed = m_sync.sync_move_local_files( m_src.base, m_src.key_path_map,
@@ -83,11 +86,14 @@ void SyncMgr::sync()
 
         if ( changed )
         {
+            m_dst.clear();
             m_scan.scan( m_dst.base, m_dst.folders, m_dst.files, m_dst.folders_invalid, m_dst.files_invalid );
+            m_scan.get_key( m_dst.path_key_map, m_dst.base, m_dst.files );
+            m_scan.convert_to_key_path_map( m_dst.path_key_map, m_dst.key_path_map );
         }
 
-        changed = m_sync.sync_copy_remote_files( m_src.base, m_src.files,
-                                                 m_dst.base, m_dst.files );
+        changed = m_sync.sync_copy_remote_files( m_src.base, m_src.key_path_map,
+                                                 m_dst.base, m_dst.key_path_map );
 
         if ( changed )
         {

@@ -16,8 +16,8 @@ public:
     bool sync_copy_remote_folders( const Path& src, const PathSet& src_folders,
                                    const Path& dst, const PathSet& dst_folders );
 
-    bool sync_copy_remote_files( const Path& src, const PathSet& src_files,
-                                 const Path& dst, const PathSet& dst_files );
+    bool sync_copy_remote_files( const Path& src, const KeyPathMap& src_key_path_map,
+                                 const Path& dst, const KeyPathMap& dst_key_path_map );
 
     bool sync_remove_folders( const Path& src, const PathSet& src_folders,
                               const Path& dst, const PathSet& dst_folders );
