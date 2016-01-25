@@ -5,7 +5,7 @@
 boost::system::error_code ec;
 
 
-bool Sync::sync_remove_files( const Path& src, const PathSet& src_files,
+bool Sync::remove_files( const Path& src, const PathSet& src_files,
                               const Path& dst, const PathSet& dst_files )
 {
     bool changed = false;
@@ -14,9 +14,10 @@ bool Sync::sync_remove_files( const Path& src, const PathSet& src_files,
 
     BOOST_FOREACH( const Path& p, dst_isolated_files )
     {
-        std::cout << "REMOVE: " << p << "\n";
-        permissions( p, boost::filesystem::all_all, ec );
-        remove( p, ec );
+        Path file = dst / p;
+        std::cout << "REMOVE: " << file << "\n";
+        permissions( file, boost::filesystem::all_all, ec );
+        remove( file, ec );
         changed = true;
     }
 
@@ -24,13 +25,13 @@ bool Sync::sync_remove_files( const Path& src, const PathSet& src_files,
 }
 
 
-bool Sync::sync_remove_folders( const Path& src, const PathSet& src_folders,
+bool Sync::remove_folders( const Path& src, const PathSet& src_folders,
                                 const Path& dst, const PathSet& dst_folders )
 {
     bool changed = false;
     PathSet dst_isolated_folders;
     std::set_difference( dst_folders.begin(), dst_folders.end(), src_folders.begin(), src_folders.end(), std::inserter(dst_isolated_folders, dst_isolated_folders.begin()) );
-    this->remove_sub_folders( dst_isolated_folders );
+    this->erase_sub_folders( dst_isolated_folders );
 
     BOOST_FOREACH( const Path& p, dst_isolated_folders )
     {
@@ -45,7 +46,7 @@ bool Sync::sync_remove_folders( const Path& src, const PathSet& src_folders,
 }
 
 
-bool Sync::sync_copy_remote_files( const Path& src, const KeyPathMap& src_key_path_map,
+bool Sync::remote_copy_files( const Path& src, const KeyPathMap& src_key_path_map,
                                    const Path& dst, const KeyPathMap& dst_key_path_map )
 {
     bool changed = false;
@@ -89,31 +90,21 @@ bool Sync::sync_copy_remote_files( const Path& src, const KeyPathMap& src_key_pa
 }
 
 
-bool Sync::sync_copy_remote_folders( const Path& src, const PathSet& src_folders,
+bool Sync::remote_copy_folders( const Path& src, const PathSet& src_folders,
                                      const Path& dst, const PathSet& dst_folders )
 {
     bool changed = false;
     PathSet src_isolated_folders;
     std::set_difference( src_folders.begin(), src_folders.end(), dst_folders.begin(), dst_folders.end(), std::inserter(src_isolated_folders, src_isolated_folders.begin()) );
-    this->remove_sub_folders( src_isolated_folders );
+    this->erase_sub_folders( src_isolated_folders );
 
     BOOST_FOREACH( const Path& p, src_isolated_folders )
     {
         const Path from = src / p;
         const Path to = dst / p;
+        std::stringstream cmd;
 
         std::cout << "COPY FOLDER: " << from << " -- " << to << "\n";
-        //copy_directory( from, to, ec );
-
-        //if ( ec )
-        //{
-        //    const Path to_parent = to.parent_path();
-        //    std::cout << "CREATE DIRECTORIES: " << to_parent << "\n";
-        //    create_directories( to_parent, ec );
-        //    copy_directory( from, to, ec );
-        //}
-
-        std::stringstream cmd;
         cmd << "XCOPY /E /Y /I /Q " << from << " " << to << " >NUL";
         ::system( cmd.str().c_str() );
         changed = true;
@@ -123,7 +114,7 @@ bool Sync::sync_copy_remote_folders( const Path& src, const PathSet& src_folders
 }
 
 
-bool Sync::sync_move_local_files( const Path& src, const KeyPathMap& src_key_path_map,
+bool Sync::local_move_files( const Path& src, const KeyPathMap& src_key_path_map,
                                   const Path& dst, const KeyPathMap& dst_key_path_map )
 {
     bool changed = false;
@@ -183,7 +174,7 @@ bool Sync::sync_move_local_files( const Path& src, const KeyPathMap& src_key_pat
 }
 
 
-bool Sync::sync_move_local_folders( const Path& src, PathInfoSetMap& src_folder_info_map,
+bool Sync::local_move_folders( const Path& src, PathInfoSetMap& src_folder_info_map,
                                     const Path& dst, PathInfoSetMap& dst_folder_info_map )
 {
     bool changed = false;
@@ -262,13 +253,12 @@ bool Sync::sync_move_local_folders( const Path& src, PathInfoSetMap& src_folder_
 }
 
 
-void Sync::remove_sub_folders( PathSet& folders )
+void Sync::erase_sub_folders( PathSet& folders )
 {
-    PathSet sub_folders;
-
-    BOOST_FOREACH( const Path& folder, folders )
+    for( PathSet::iterator it = folders.begin(); it != folders.end(); NULL )
     {
-        Path p = folder;
+        Path p = *it;
+        bool is_sub_folder = false;
 
         while ( p.has_parent_path() )
         {
@@ -276,13 +266,15 @@ void Sync::remove_sub_folders( PathSet& folders )
 
             if ( folders.find( p ) != folders.end() )
             {
-                sub_folders.insert( folder );
+                is_sub_folder = true;
+                folders.erase( it++ );
                 break;
             }
         }
-    }
 
-    PathSet result;
-    std::set_difference( folders.begin(), folders.end(), sub_folders.begin(), sub_folders.end(), std::inserter(result, result.begin()) );
-    folders.swap( result );
+        if ( false == is_sub_folder )
+        {
+            ++it;
+        }
+    }
 }
