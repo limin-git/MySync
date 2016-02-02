@@ -26,4 +26,8 @@ public:
     std::vector<std::string> m_exclude_files;
     std::vector<std::string> m_include_folders;
     std::vector<std::string> m_exclude_folders;
+
+public:
+
+    static Filter default_filter;
 };

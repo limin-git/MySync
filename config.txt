@@ -1,3 +1,4 @@
+#src			= C:\My Document\Resource\Scan
 src			= C:\Tmp\1
 dst			= C:\Tmp\2
 #exclude-files		= .h .cpp

@@ -2,6 +2,9 @@
 #include "Filter.h"
 
 
+Filter Filter::default_filter;
+
+
 bool Filter::is_valid( const Path& p ) const
 {
     if ( is_directory( p ) && !is_symlink( p ) )

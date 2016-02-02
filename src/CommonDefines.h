@@ -7,6 +7,11 @@ typedef std::set<Path> PathSet;
 typedef std::map<Key, PathSet> KeyPathMap;
 typedef std::map<Path, Key> PathKeyMap;
 
+class File;
+typedef std::map<Path, File*> FileMap;
+class Folder;
+typedef std::map<Path, Folder*> FolderMap;
+
 
 struct PathInfo
 {

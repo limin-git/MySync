@@ -189,7 +189,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\File.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Filter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Folder.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Folder.h"
 				>
 			</File>
 			<File
@@ -214,6 +226,10 @@
 			</File>
 			<File
 				RelativePath=".\src\CommonDefines.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\File.h"
 				>
 			</File>
 			<File
