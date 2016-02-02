@@ -73,3 +73,103 @@ void Folder::scan( const Path& base, PathSet& folders, PathSet& files, PathSet& 
         folder->scan( p, folders, files, invalid_folders, invalid_files, filter );
     }
 }
+
+
+PathStack Folder::get_path_stack( Path p )
+{
+    PathStack s;
+
+    while ( p.has_parent_path() )
+    {
+        s.push( p.filename() );
+        p = p.parent_path();
+    }
+
+    s.push( p.filename() );
+    return s;   
+}
+
+
+Folder* Folder::remove_folder( const Path& p )
+{
+    std::pair<FolderMap*, FolderMap::iterator> pair = find_folder( p );
+
+    if ( pair.first )
+    {
+        pair.first->erase( pair.second );
+    }
+
+    return pair.second->second;
+}
+
+
+File* Folder::remove_file( const Path& p )
+{
+    std::pair<FileMap*, FileMap::iterator> pair = find_file( p );
+
+    if ( pair.first )
+    {
+        pair.first->erase( pair.second );
+    }
+
+    return pair.second->second;
+}
+
+
+std::pair<FolderMap*, FolderMap::iterator> Folder::find_folder( const Path& p )
+{
+    Folder* folder = this;
+    FolderMap::iterator it;
+    PathStack s = this->get_path_stack( p );
+
+    while ( !s.empty() )
+    {
+        it = folder->m_folders.find( s.top() );
+
+        if ( it == m_folders.end() )
+        {
+            return std::pair<FolderMap*, FolderMap::iterator>();
+        }
+
+        folder = it->second;
+        s.pop();
+    }
+
+    return std::pair<FolderMap*, FolderMap::iterator>( &folder->m_folders, it );
+}
+
+
+std::pair<FileMap*, FileMap::iterator> Folder::find_file( const Path& p )
+{
+    Path parent = p;
+    Folder* folder = this;
+
+    if ( !parent.empty() )
+    {
+        FolderMap::iterator it;
+        PathStack s = this->get_path_stack( parent );
+
+        while ( !s.empty() )
+        {
+            it = folder->m_folders.find( s.top() );
+
+            if ( it == m_folders.end() )
+            {
+                return std::pair<FileMap*, FileMap::iterator>();
+            }
+
+            folder = it->second;
+            s.pop();
+        }
+    }
+
+    Path filename = p.filename();
+    FileMap::iterator it = folder->m_files.find( filename );
+
+    if ( it == folder->m_files.end() )
+    {
+        return std::pair<FileMap*, FileMap::iterator>();
+    }
+
+    return std::pair<FileMap*, FileMap::iterator>( &folder->m_files, it );
+}

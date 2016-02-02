@@ -11,12 +11,12 @@ void main(int argc, char* argv[])
 
     if ( parm )
     {
-        Folder folder;
-        folder.initialize( parm->m_src );
-        PathSet folders, files;
+        //Folder folder;
+        //folder.initialize( parm->m_src );
+        //PathSet folders, files;
         //folder.collect_folders( folders );
         //folder.collect_files( files );
-        return;
+        //return;
 
         try
         {

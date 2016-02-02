@@ -15,6 +15,15 @@ public:
 
 public:
 
+    Folder* remove_folder( const Path& p );
+    File* remove_file( const Path& p );
+    PathStack get_path_stack( Path p );
+    // TODO: change to find_folder_map
+    std::pair<FolderMap*, FolderMap::iterator> find_folder( const Path& p );
+    std::pair<FileMap*, FileMap::iterator> find_file( const Path& p );
+
+public:
+
     static Folder* create_folder( const Path& dir );
 
 public:
