@@ -3,5 +3,5 @@ src			= C:\Tmp\1
 dst			= C:\Tmp\2
 #exclude-files		= .h .cpp
 #exclude-folders		= .git
-exclude-files		= .user;.ncb;.exe;.res;.dep;.ilk;.embed.manifest;.obj;.pdb;.idb.pcx;.suo;.jpg
+#exclude-files		= .user;.ncb;.exe;.res;.dep;.ilk;.embed.manifest;.obj;.pdb;.idb.pcx;.suo;.jpg
 #test

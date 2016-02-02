@@ -11,16 +11,19 @@ class Folder
 public:
 
     void initialize( const Path& dir );
+    void assign( const Path& dir );
     void scan( const Path& base, PathSet& folders, PathSet& files, PathSet& invalid_folders, PathSet& invalid_files, const Filter& filter = Filter::default_filter );
+    Folder* remove_folder( const Path& p );
+    File* remove_file( const Path& p );
+    void copy_folder( const Path& p, Folder* folder );
+    void copy_file( const Path& p, File* file );
 
 public:
 
-    Folder* remove_folder( const Path& p );
-    File* remove_file( const Path& p );
+    Folder* find_folder_parent( const Path& p );
+    Folder* find_file_parent( const Path& p );
+    Folder* create_directory( const Path& p );
     PathStack get_path_stack( Path p );
-    // TODO: change to find_folder_map
-    std::pair<FolderMap*, FolderMap::iterator> find_folder( const Path& p );
-    std::pair<FileMap*, FileMap::iterator> find_file( const Path& p );
 
 public:
 

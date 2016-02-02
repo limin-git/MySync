@@ -13,6 +13,7 @@ public:
     }
 
     void initialize( const Path& p );
+    void assign( const Path& p, const Key& key );
 
 public:
 

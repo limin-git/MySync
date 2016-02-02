@@ -13,6 +13,14 @@ void File::initialize( const Path& p )
 }
 
 
+void File::assign( const Path& p, const Key& key  )
+{
+    m_name = p.filename();
+    m_size = key.first;
+    m_time = key.second;
+}
+
+
 File* File::create_file( const Path& p )
 {
     File* file = new File;

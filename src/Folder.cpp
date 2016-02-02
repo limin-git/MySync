@@ -31,6 +31,12 @@ void Folder::initialize( const Path& dir )
 }
 
 
+void Folder::assign( const Path& dir )
+{
+    m_name = dir.filename();
+}
+
+
 Folder* Folder::create_folder( const Path& dir )
 {
     Folder* folder = new Folder;
@@ -92,57 +98,62 @@ PathStack Folder::get_path_stack( Path p )
 
 Folder* Folder::remove_folder( const Path& p )
 {
-    std::pair<FolderMap*, FolderMap::iterator> pair = find_folder( p );
+    Folder* folder = NULL;
+    Folder* parent = this->find_folder_parent( p );
 
-    if ( pair.first )
+    if ( parent )
     {
-        pair.first->erase( pair.second );
+        FolderMap::iterator it = parent->m_folders.find( p.filename() );
+        folder = it->second;
+        parent->m_folders.erase( it );
     }
 
-    return pair.second->second;
+    return folder;
 }
 
 
 File* Folder::remove_file( const Path& p )
 {
-    std::pair<FileMap*, FileMap::iterator> pair = find_file( p );
+    File* file = NULL;
+    Folder* parent = this->find_file_parent( p );
 
-    if ( pair.first )
+    if ( parent )
     {
-        pair.first->erase( pair.second );
+        FileMap::iterator it = parent->m_files.find( p.filename() );
+        file = it->second;
+        parent->m_files.erase( it );
     }
 
-    return pair.second->second;
+    return file;
 }
 
 
-std::pair<FolderMap*, FolderMap::iterator> Folder::find_folder( const Path& p )
+Folder* Folder::find_folder_parent( const Path& p )
 {
     Folder* folder = this;
-    FolderMap::iterator it;
     PathStack s = this->get_path_stack( p );
 
     while ( !s.empty() )
     {
-        it = folder->m_folders.find( s.top() );
+        FolderMap::iterator it = folder->m_folders.find( s.top() );
 
         if ( it == m_folders.end() )
         {
-            return std::pair<FolderMap*, FolderMap::iterator>();
+            return NULL;
         }
 
         folder = it->second;
         s.pop();
     }
 
-    return std::pair<FolderMap*, FolderMap::iterator>( &folder->m_folders, it );
+    return folder;
 }
 
 
-std::pair<FileMap*, FileMap::iterator> Folder::find_file( const Path& p )
+Folder* Folder::find_file_parent( const Path& p )
 {
-    Path parent = p;
     Folder* folder = this;
+    Path parent = p;
 
     if ( !parent.empty() )
     {
@@ -155,7 +166,7 @@ std::pair<FileMap*, FileMap::iterator> Folder::find_file( const Path& p )
 
             if ( it == m_folders.end() )
             {
-                return std::pair<FileMap*, FileMap::iterator>();
+                return NULL;
             }
 
             folder = it->second;
@@ -163,13 +174,48 @@ std::pair<FileMap*, FileMap::iterator> Folder::find_file( const Path& p )
         }
     }
 
-    Path filename = p.filename();
-    FileMap::iterator it = folder->m_files.find( filename );
-
-    if ( it == folder->m_files.end() )
+    if ( folder->m_files.find( p.filename() ) == folder->m_files.end() )
     {
-        return std::pair<FileMap*, FileMap::iterator>();
+        return NULL;
     }
 
-    return std::pair<FileMap*, FileMap::iterator>( &folder->m_files, it );
+    return folder;
+}
+
+
+Folder* Folder::create_directory( const Path& p )
+{
+    Folder* folder = this;
+    PathStack s = this->get_path_stack( p );
+
+    while ( !s.empty() )
+    {
+        FolderMap::iterator it = folder->m_folders.find( s.top() );
+
+        if ( it == m_folders.end() )
+        {
+            Folder* new_folder = new Folder;
+            new_folder->assign( s.top() );
+            it = folder->m_folders.insert( FolderMap::value_type( s.top(), new_folder ) ).first;
+        }
+
+        folder = it->second;
+        s.pop();
+    }
+
+    return folder;
+}
+
+
+void Folder::copy_folder( const Path& p, Folder* folder )
+{
+    Folder* parent = this->create_directory( p.parent_path() );
+    parent->m_folders[p.filename()] = folder;
+}
+
+
+void Folder::copy_file( const Path& p, File* file )
+{
+    Folder* parent = this->create_directory( p.parent_path() );
+    parent->m_files[p.filename()] = file;
 }
