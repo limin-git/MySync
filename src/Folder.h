@@ -13,10 +13,15 @@ public:
     void initialize( const Path& dir );
     void assign( const Path& dir );
     void scan( const Path& base, PathSet& folders, PathSet& files, PathSet& invalid_folders, PathSet& invalid_files, const Filter& filter = Filter::default_filter );
+    void get_key( const Path& base, PathKeyMap& path_key_map );
+
+
     Folder* remove_folder( const Path& p );
     File* remove_file( const Path& p );
     void copy_folder( const Path& p, Folder* folder );
     void copy_file( const Path& p, File* file );
+    void rename_file( const Path& from, const Path& to );
+    void rename_folder( const Path& from, const Path& to );
 
 public:
 

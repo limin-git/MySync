@@ -81,6 +81,20 @@ void Folder::scan( const Path& base, PathSet& folders, PathSet& files, PathSet& 
 }
 
 
+void Folder::get_key( const Path& base, PathKeyMap& path_key_map )
+{
+    //BOOST_FOREACH( FileMap::value_type& v, m_files )
+    //{
+    //    Path p = base / v.first;
+    //}
+
+    //BOOST_FOREACH( FolderMap::value_type& v, m_folders )
+    //{
+    //    const Path& folder_path = v.first;
+    //}
+}
+
+
 PathStack Folder::get_path_stack( Path p )
 {
     PathStack s;
@@ -92,7 +106,7 @@ PathStack Folder::get_path_stack( Path p )
     }
 
     s.push( p.filename() );
-    return s;   
+    return s;
 }
 
 
@@ -218,4 +232,26 @@ void Folder::copy_file( const Path& p, File* file )
 {
     Folder* parent = this->create_directory( p.parent_path() );
     parent->m_files[p.filename()] = file;
+}
+
+
+void Folder::rename_file( const Path& from, const Path& to )
+{
+    File* file = this->remove_file( from );
+
+    if ( file )
+    {
+        this->copy_file( to, file );
+    }
+}
+
+
+void Folder::rename_folder( const Path& from, const Path& to )
+{
+    Folder* folder = this->remove_folder( from );
+
+    if ( folder )
+    {
+        this->copy_folder( to, folder );
+    }
 }

@@ -164,5 +164,5 @@ void Scan::splite_folders_by_validity( const Path& base, const PathSet& folders,
         {
             not_has_invalid_folders.insert( p );
         }
-    } 
+    }
 }
